@@ -1,0 +1,12 @@
+author: mongoose-os
+type: lib
+description: A cross-cloud device shadow API
+version: 1.0
+sources:
+  - src
+includes:
+  - include
+tags:
+  - c
+  - cloud
+manifest_version: 2017-09-29
