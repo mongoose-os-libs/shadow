@@ -10,6 +10,7 @@
 #ifndef MGOS_SHADOW_H
 #define MGOS_SHADOW_H
 
+#include <stdarg.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -46,38 +47,42 @@ typedef void (*mgos_shadow_error_handler)(void *arg, enum mgos_shadow_event ev,
 /* Return ASCII name of the shadow event: "CONNECTED", "GET_REJECTED", ... */
 const char *mgos_shadow_event_name(enum mgos_shadow_event ev);
 
+/* Setup shadow state handler. */
+bool mgos_shadow_add_state_handler(mgos_shadow_state_handler, void *arg);
+
+/* Setup shadow error handler. */
+bool mgos_shadow_add_error_handler(mgos_shadow_error_handler, void *arg);
+
+/*
+ * Request shadow state. Response will arrive via GET_ACCEPTED topic.
+ * Note that MGOS automatically does this on every (re)connect if
+ * device.shadow.get_on_connect is true (default).
+ */
+bool mgos_shadow_get(void);
+
+/*
+ * Send an update. Format string should define the value of the "state" key,
+ * i.e. it should be an object with "reported" and/or "desired" keys, e.g.:
+ * `mgos_shadow_updatef("{reported:{foo: %d, bar: %d}}", foo, bar)`.
+ * Response will arrive via UPDATE_ACCEPTED or REJECTED topic.
+ * If you want the update to be aplied only if a particular version is
+ * current,
+ * specify the version. Otherwise set it to 0 to apply to any version.
+ */
+bool mgos_shadow_updatef(uint64_t version, const char *state_jsonf, ...);
+
+/* "Simple" version of mgos_shadow_updatef, primarily for FFI.  */
+bool mgos_shadow_update(double version, const char *state_json);
+
+/* Shadow API implementation descriptor */
 struct mgos_shadow {
-  /* Setup shadow state handler. */
-  void (*add_state_handler)(mgos_shadow_state_handler, void *arg);
-
-  /* Setup shadow error handler. */
-  void (*add_error_handler)(mgos_shadow_error_handler, void *arg);
-
-  /*
-   * Request shadow state. Response will arrive via GET_ACCEPTED topic.
-   * Note that MGOS automatically does this on every (re)connect if
-   * device.shadow.get_on_connect is true (default).
-   */
+  bool (*add_state_handler)(mgos_shadow_state_handler, void *arg);
+  bool (*add_error_handler)(mgos_shadow_error_handler, void *arg);
   bool (*get)(void);
-  /*
-   * Send an update. Format string should define the value of the "state" key,
-   * i.e. it should be an object with "reported" and/or "desired" keys, e.g.:
-   * `mgos_shadow_updatef("{reported:{foo: %d, bar: %d}}", foo, bar)`.
-   * Response will arrive via UPDATE_ACCEPTED or REJECTED topic.
-   * If you want the update to be aplied only if a particular version is
-   * current,
-   * specify the version. Otherwise set it to 0 to apply to any version.
-   */
-  bool (*updatef)(uint64_t version, const char *state_jsonf, ...);
-
-  /* "Simple" version of mgos_shadow_updatef, primarily for FFI.  */
-  bool (*update)(double version, const char *state_json);
+  bool (*updatevf)(uint64_t version, const char *state_jsonf, va_list ap);
 };
 
-/* Get device shadow. */
-const struct mgos_shadow *mgos_shadow_get(void);
-
-/* Set device shadow. */
+/* Set device shadow implementation. */
 void mgos_shadow_set(const struct mgos_shadow *);
 
 #ifdef __cplusplus
