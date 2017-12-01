@@ -74,17 +74,6 @@ bool mgos_shadow_updatef(uint64_t version, const char *state_jsonf, ...);
 /* "Simple" version of mgos_shadow_updatef, primarily for FFI.  */
 bool mgos_shadow_update(double version, const char *state_json);
 
-/* Shadow API implementation descriptor */
-struct mgos_shadow {
-  bool (*add_state_handler)(mgos_shadow_state_handler, void *arg);
-  bool (*add_error_handler)(mgos_shadow_error_handler, void *arg);
-  bool (*get)(void);
-  bool (*updatevf)(uint64_t version, const char *state_jsonf, va_list ap);
-};
-
-/* Set device shadow implementation. */
-void mgos_shadow_set(const struct mgos_shadow *);
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
