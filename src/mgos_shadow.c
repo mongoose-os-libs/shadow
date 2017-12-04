@@ -7,6 +7,8 @@
 
 #include "common/cs_dbg.h"
 
+#include "mgos_hooks.h"
+
 static const struct mgos_shadow *s_shmadow = NULL;
 static SLIST_HEAD(s_shadows,
                   mgos_shadow) s_shadows = SLIST_HEAD_INITIALIZER(s_shadows);
@@ -30,13 +32,11 @@ const char *mgos_shadow_event_name(enum mgos_shadow_event ev) {
 }
 
 static bool mgos_shadow_check_init(void) {
-  static bool initialised = false;
-  if (initialised) return true;
   if (s_shmadow == NULL) {
     LOG(LL_ERROR, ("Device shadow impl not set"));
     return false;
   }
-  return s_shmadow->init();
+  return true;
 }
 
 bool mgos_shadow_add_state_handler(mgos_shadow_state_handler func, void *arg) {
@@ -73,7 +73,9 @@ void mgos_shadow_register(struct mgos_shadow *p) {
   SLIST_INSERT_HEAD(&s_shadows, p, link);
 }
 
-bool mgos_shadow_init(void) {
+static void mgos_shadow_init_cb(enum mgos_hook_type type,
+                                const struct mgos_hook_arg *arg,
+                                void *userdata) {
   /* Select shadow implementation - whichever successfully initialises. */
   struct mgos_shadow *s;
   SLIST_FOREACH(s, &s_shadows, link) {
@@ -83,5 +85,13 @@ bool mgos_shadow_init(void) {
       break;
     }
   }
+  (void) type;
+  (void) arg;
+  (void) userdata;
+}
+
+bool mgos_shadow_init(void) {
+  /* Implementations are inited after us, delay the init. */
+  mgos_hook_register(MGOS_HOOK_INIT_DONE, mgos_shadow_init_cb, NULL);
   return true;
 }
