@@ -14,44 +14,43 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "mgos_event.h"
+
 #include "common/mg_str.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
+#define MGOS_SHADOW_BASE MGOS_EVENT_BASE('S', 'D', 'W')
+
+/* In the comment, the type of `void *ev_data` is specified */
 enum mgos_shadow_event {
-  MGOS_SHADOW_CONNECTED = 0,
-  MGOS_SHADOW_GET_ACCEPTED = 1,
-  MGOS_SHADOW_GET_REJECTED = 2,
-  MGOS_SHADOW_UPDATE_ACCEPTED = 3,
-  MGOS_SHADOW_UPDATE_REJECTED = 4,
-  MGOS_SHADOW_UPDATE_DELTA = 5,
+  MGOS_SHADOW_GET = MGOS_SHADOW_BASE, /* NULL */
+  MGOS_SHADOW_UPDATE,                 /* struct mgos_shadow_update_data */
+  MGOS_SHADOW_CONNECTED,              /* NULL */
+  MGOS_SHADOW_GET_ACCEPTED,           /* struct mg_str - shadow state */
+  MGOS_SHADOW_GET_REJECTED,           /* struct mgos_shadow_error */
+  MGOS_SHADOW_UPDATE_ACCEPTED,        /* NULL */
+  MGOS_SHADOW_UPDATE_REJECTED,        /* struct mgos_shadow_error */
+  MGOS_SHADOW_UPDATE_DELTA,           /* struct mg_str: shadow delta */
 };
 
-/*
- * Main Device Shadow state callback handler.
- *
- * Will get invoked when connection is established or when new versions
- * of the state arrive via one of the topics.
- *
- * CONNECTED event comes with no state.
- *
- * For DELTA events, state is passed as "desired", reported is not set.
- */
-typedef void (*mgos_shadow_state_handler)(void *arg, enum mgos_shadow_event ev,
-                                          const struct mg_str *state);
-typedef void (*mgos_shadow_error_handler)(void *arg, enum mgos_shadow_event ev,
-                                          int code, const char *message);
+/* ev_data for MGOS_SHADOW_UPDATE event. */
+struct mgos_shadow_update_data {
+  uint64_t version;
+  const char *json_fmt;
+  va_list ap;
+};
 
-/* Return ASCII name of the shadow event: "CONNECTED", "GET_REJECTED", ... */
-const char *mgos_shadow_event_name(enum mgos_shadow_event ev);
+/* ev_data for MGOS_SHADOW_*_REJECTED events. */
+struct mgos_shadow_error {
+  int code;
+  char *message;
+};
 
-/* Setup shadow state handler. */
-bool mgos_shadow_add_state_handler(mgos_shadow_state_handler, void *arg);
-
-/* Setup shadow error handler. */
-bool mgos_shadow_add_error_handler(mgos_shadow_error_handler, void *arg);
+/* Stringify shadow event name */
+const char *mgos_shadow_event_name(int ev);
 
 /*
  * Request shadow state. Response will arrive via GET_ACCEPTED topic.
