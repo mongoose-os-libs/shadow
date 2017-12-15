@@ -46,7 +46,7 @@ struct mgos_shadow_update_data {
 /* ev_data for MGOS_SHADOW_*_REJECTED events. */
 struct mgos_shadow_error {
   int code;
-  char *message;
+  struct mg_str message;
 };
 
 /* Stringify shadow event name */
