@@ -2,8 +2,9 @@
  * Copyright (c) 2014-2017 Cesanta Software Limited
  * All rights reserved
  */
-
 #include "mgos_shadow.h"
+
+#include "mgos.h"
 
 const char *mgos_shadow_event_name(int ev) {
   switch (ev) {
@@ -38,7 +39,15 @@ bool mgos_shadow_updatef(uint64_t version, const char *json_fmt, ...) {
 }
 
 bool mgos_shadow_update(double version, const char *state_json) {
-  return mgos_shadow_updatef(version, "%s", state_json);
+  /*
+   * Make a copy of the string. Reason: state_json may come from mJS.
+   * mgos_shadow_updatef triggers a set of event handlers that can invoke mJS,
+   * GC-ing and invalidating that pointer.
+   */
+  char *msg = strdup(state_json);
+  bool res = mgos_shadow_updatef(version, "%s", msg);
+  free(msg);
+  return res;
 }
 
 bool mgos_shadow_init(void) {
