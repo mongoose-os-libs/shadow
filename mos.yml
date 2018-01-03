@@ -9,4 +9,7 @@ includes:
 tags:
   - c
   - cloud
+config_schema:
+  - ["shadow", "o", {title: "Device shadow settings"}]
+  - ["shadow.lib", "s", "", {title: "Preferred shadow lib, e.g. aws, dash, gcp"}]
 manifest_version: 2017-09-29
