@@ -63,6 +63,7 @@ bool mgos_shadow_update(double version, const char *state_json) {
 }
 
 bool mgos_shadow_init(void) {
+  if (!mgos_sys_config_get_shadow_enable()) return true;
   mgos_event_register_base(MGOS_SHADOW_BASE, "shadow");
   return true;
 }
