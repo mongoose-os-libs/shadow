@@ -37,7 +37,7 @@ let Shadow = {
   // `CONNECTED` event and report the current state, and b) catch `UPDATE_DELTA`
   // event, apply the delta, and report the state. Example:
   // ```javascript
-  // Shadow.update(0, {reported:{temperature: 12.34}});
+  // Shadow.update(0, {temperature: 12.34});
   // ```
   update: function(version, obj) {
     this._upd(version, JSON.stringify(obj));
