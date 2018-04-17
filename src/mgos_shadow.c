@@ -20,6 +20,10 @@
 
 const char *mgos_shadow_event_name(int ev) {
   switch (ev) {
+    case MGOS_SHADOW_GET:
+      return "GET";
+    case MGOS_SHADOW_UPDATE:
+      return "UPDATE";
     case MGOS_SHADOW_CONNECTED:
       return "CONNECTED";
     case MGOS_SHADOW_GET_ACCEPTED:
