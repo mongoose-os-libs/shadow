@@ -1,7 +1,7 @@
 load('api_events.js');
 
 let Shadow = {
-  BASE: Event.baseNumber("SDW"),
+  BASE: Event.baseNumber('SDW'),
   _en: ffi('char *mgos_shadow_event_name(int)'),
   _sp: ffi('void *mgos_get_mgstr_ptr(void *)'),
   _sl: ffi('int mgos_get_mgstr_len(void *)'),
@@ -43,3 +43,5 @@ let Shadow = {
     this._upd(version, JSON.stringify(obj));
   },
 };
+
+let Twin = Shadow;
