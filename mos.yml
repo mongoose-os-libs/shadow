@@ -9,6 +9,7 @@ includes:
 tags:
   - c
   - cloud
+  - docs:net:Device Shadow
 config_schema:
   - ["shadow", "o", {title: "Device shadow settings"}]
   - ["shadow.enable", "b", true, {title: "Enable device shadow functionality"}]
