@@ -23,4 +23,4 @@ config_schema:
 manifest_version: 2017-09-29
 
 libs:
-  - origin: https://github.com/mongoose-os-libs/core
+  - location: https://github.com/mongoose-os-libs/core
